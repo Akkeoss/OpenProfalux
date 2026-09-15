@@ -7,6 +7,8 @@ MAI-EMNOE). Tout reste local : pas de cloud, pas de passerelle propriétaire, au
 
 📖 **Montage pas à pas, photos et l'histoire complète du reverse** : [www.isno.fr/projets/openprofalux](https://www.isno.fr/projets/openprofalux)
 
+🔌 **Sans rien câbler** : je fais fabriquer une carte qui intègre tout d'origine (ESP32-S3, radio 868 MHz, antenne SMA, USB-C, protections ESD) et qui tourne avec ce même firmware. Prototypes en fabrication, pas encore en vente : [liste d'attente sur isno.fr](https://www.isno.fr/liste-attente).
+
 ## Le principe : cloner une télécommande, pas casser la crypto
 
 Les télécommandes Profalux sont en KeeLoq (rolling code), donc une trame est a priori
