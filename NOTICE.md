@@ -10,7 +10,15 @@ Ce n'était pas cosmétique. La chaîne d'admission ISNO place la licence en
 identifiable. Notre propre firmware était dans le même état : la règle se serait
 appliquée à tout le monde sauf à nous.
 
-La licence est **MIT**, texte intégral dans `LICENSE`, inchangé.
+La licence est **MIT**, texte intégral dans `LICENSE`.
+
+## La ligne de copyright, corrigée le 2026-09-16
+
+Elle disait « OpenKeeloq contributors », un reste du nom précédent du projet.
+Vérifié avant de la changer : `git log` ne compte **qu'un seul auteur**, sur 124
+commits. Personne d'autre ne détient de droits, la correction ne prive donc
+personne. Elle nomme maintenant le titulaire réel, et laisse la place aux
+contributeurs à venir.
 
 ## Brevet KeeLoq
 
