@@ -19,10 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Note: The KEELOQ algorithm patent (US 5517187, Nanoteq/Microchip) EXPIRED IN
-2016. The algorithm and NLF constant 0x3A5C742E are public domain.
-
-This software does NOT contain or distribute any manufacturer's secret key.
-It generates random per-device keys and relies on receiver-side self-learning
-procedures documented in patents such as Chamberlain US 5686904.
