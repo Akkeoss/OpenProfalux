@@ -30,3 +30,8 @@ firmware-capture-test/dependencies.lock
 firmware-capture-test/sdkconfig
 firmware-capture-test/sdkconfig.old
 firmware-capture-test/main/*.o
+
+# Sorties de scripts/release.sh
+firmware/build-*/
+firmware/sdkconfig.devkit
+dist/
