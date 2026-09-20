@@ -1111,7 +1111,7 @@ static void publish_update_state(void) {
     char pl[288];
     snprintf(pl, sizeof(pl),
         "{\"installed_version\":\"%s\",\"latest_version\":\"%s\",\"title\":\"OpenProfalux\","
-        "\"release_url\":\"https://github.com/Shad107/OpenProfalux/releases\"}", inst, latest);
+        "\"release_url\":\"https://github.com/Isno-Open/OpenProfalux/releases\"}", inst, latest);
     pub_defer("openprofalux/update/state", pl, 0, 1);
 }
 /* Decouverte HA de l'entite update (plateforme MQTT update, meme device "openprofalux"). */

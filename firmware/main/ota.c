@@ -139,8 +139,15 @@ const char *ota_latest_url(void)     { return s_latest_url; }
 
 esp_err_t ota_check_github(void)
 {
+    /* ⚠️ L'adresse doit être la définitive : cette fonction lit la réponse avec
+     * esp_http_client_open + fetch_headers + read, qui NE SUIVENT PAS les redirections
+     * (seul esp_http_client_perform le fait). Constaté le 2026-09-20 après le passage du
+     * dépôt sous Isno-Open : l'ancienne adresse Shad107 répond 301 sans tag_name, la
+     * vérification échouait en silence et l'entité de mise à jour côté HA ne voyait plus
+     * jamais de nouvelle version. Le téléchargement lui-même (esp_https_ota) suit les
+     * redirections, y compris celle de GitHub vers objects.githubusercontent.com. */
     esp_http_client_config_t cfg = {
-        .url = "https://api.github.com/repos/Shad107/OpenProfalux/releases/latest",
+        .url = "https://api.github.com/repos/Isno-Open/OpenProfalux/releases/latest",
         .crt_bundle_attach = esp_crt_bundle_attach,
         .timeout_ms = 10000, .buffer_size = 4096, .buffer_size_tx = 1024,
         .user_agent = "OpenProfalux-OTA",   /* l'API GitHub exige un User-Agent */
@@ -169,7 +176,7 @@ esp_err_t ota_check_github(void)
                                 : !strcmp(TARGET_NAME, "external")     ? "devkit" : NULL;
             if (variant) {
                 snprintf(s_latest_url, sizeof(s_latest_url),
-                    "https://github.com/Shad107/OpenProfalux/releases/download/%s/openprofalux-%s-ota.bin", tag, variant);
+                    "https://github.com/Isno-Open/OpenProfalux/releases/download/%s/openprofalux-%s-ota.bin", tag, variant);
                 rc = ESP_OK;
             }
         }
