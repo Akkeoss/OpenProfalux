@@ -32,7 +32,7 @@ idf.py set-target esp32 && idf.py build
 ## Flash
 
 ### Option A — release pré-compilée (le plus simple, pas d'ESP-IDF)
-Télécharger les binaires de la [dernière release](https://github.com/Shad107/OpenProfalux/releases)
+Télécharger les binaires de la [dernière release](https://github.com/Isno-Open/OpenProfalux/releases)
 puis, avec juste `esptool` (`pip install esptool`). **Choisir le binaire selon la carte** — les
 broches SPI diffèrent, un binaire d'une carte ne marchera pas sur l'autre :
 
