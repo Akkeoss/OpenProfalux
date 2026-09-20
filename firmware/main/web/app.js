@@ -620,7 +620,7 @@ $('#ota-check').onclick = async () => {
     /* variante de CETTE carte -> nom d'asset attendu (jamais le -full.bin, invalide en OTA) */
     const stt = await api('/api/ota/status').catch(() => ({}));
     const variant = stt.target === 'm5stack_atom' ? 'atom' : (stt.target === 'external' ? 'devkit' : null);
-    const r = await fetch('https://api.github.com/repos/Shad107/OpenProfalux/releases/latest');
+    const r = await fetch('https://api.github.com/repos/Isno-Open/OpenProfalux/releases/latest');
     if (!r.ok) { span.textContent = r.status === 404 ? '❌ Aucune release publique (dépôt privé ?)' : `❌ HTTP ${r.status}`; return; }
     const j = await r.json();
     const latest = (j.tag_name || j.name || '?').replace(/^v/, '');   /* "v0.1.1" -> "0.1.1" */
