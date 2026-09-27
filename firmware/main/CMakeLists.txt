@@ -45,8 +45,11 @@ idf_component_register(
         esp_netif
         esp_event
         mqtt
-        json
+        espressif__cjson
         driver
+        esp_driver_spi
+        esp_driver_gpio
+        esp_driver_rmt
         esp_http_server
         app_update
         esp_https_ota
