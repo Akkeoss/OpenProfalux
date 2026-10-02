@@ -85,7 +85,7 @@ ne se tient pas à la main.
 
 ## Statut
 
-- ✅ Firmware produit **compile** (ESP-IDF v5.2.2, ~1.18 Mo, partitions OTA).
+- ✅ Firmware produit **compile** (ESP-IDF v6.1, 1,29 Mo pour `isno-super`, 14 % libres, partitions OTA).
 - ✅ **Rejeu validé au banc** (le moteur suit une trame rejouée, y compris après la vraie télécommande).
 - ⏳ À valider sur l'installation : calibration des temps de course, portée antenne, multi-volets.
 

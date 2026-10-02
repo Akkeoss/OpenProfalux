@@ -1,0 +1,90 @@
+# Compile le firmware pour chaque carte declaree, sur le runner de l'organisation.
+#
+# Pourquoi nos runners et pas ceux de GitHub : la chaine ESP-IDF tient dans une
+# image docker de 8,5 Go. La telecharger a chaque execution sur une machine
+# jetable coute plus cher que de la garder sur notre runner, ou elle est deja la.
+#
+# Les cartes ne sont pas listees ici : elles viennent de boards/*.json, seul
+# endroit ou une carte se declare. Ajouter une carte, c'est ajouter un fichier.
+name: Firmware
+
+on:
+  pull_request:
+  # Toutes les branches, pas seulement main : une branche de travail doit etre
+  # compilee avant d'etre fusionnee, pas apres. Pas de liste a tenir a jour.
+  push:
+  workflow_dispatch:
+
+# `pipefail` pour tout le travail : sans lui, un `docker run ... | tee` rend le
+# code de sortie de `tee`, donc TOUJOURS 0, et une compilation en echec passe au
+# vert. Le piege a deja coute une qualification verte sur du code casse le
+# 2026-09-12 (voir isno-launcher/.github/workflows/qualifier.yml).
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+jobs:
+  cartes:
+    runs-on: [self-hosted, isno, docker]
+    timeout-minutes: 5
+    outputs:
+      matrice: ${{ steps.lire.outputs.matrice }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: lire
+        name: Lire les cartes declarees dans boards/
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, glob, os
+          cartes = []
+          for f in sorted(glob.glob('boards/*.json')):
+              nom = os.path.basename(f)[:-5]
+              mcu = json.load(open(f)).get('mcu')
+              if not mcu:
+                  raise SystemExit(f"{f} ne declare pas de mcu")
+              cartes.append({"board": nom, "target": mcu})
+          print("matrice=" + json.dumps(cartes))
+          PY
+      - name: Resume
+        run: echo '${{ steps.lire.outputs.matrice }}'
+
+  build:
+    needs: cartes
+    runs-on: [self-hosted, isno, docker]
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        carte: ${{ fromJSON(needs.cartes.outputs.matrice) }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Compiler ${{ matrix.carte.board }} (${{ matrix.carte.target }})
+        run: |
+          # Un repertoire de build par carte : deux cibles differentes ne peuvent
+          # pas partager le meme cache CMake.
+          docker run --rm --name "opf-${{ matrix.carte.board }}-$GITHUB_RUN_ID" \
+            -v "$PWD":/project -w /project/firmware \
+            "$IDF_IMAGE" bash -c "
+              set -e
+              idf.py -B build-ci set-target ${{ matrix.carte.target }}
+              idf.py -B build-ci -DBOARD=${{ matrix.carte.board }} build
+            "
+
+      - name: Taille de l'image
+        run: |
+          bin=$(ls firmware/build-ci/*.bin | grep -vE 'bootloader|partition' | head -1)
+          echo "::notice title=${{ matrix.carte.board }}::$(basename "$bin") = $(stat -c%s "$bin") octets"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.carte.board }}
+          path: |
+            firmware/build-ci/*.bin
+            firmware/build-ci/*.map
+          retention-days: 14
+
+env:
+  # Version epinglee : une montee d'IDF se decide, elle ne se subit pas au
+  # prochain build. Le depot compile sur v6.1 depuis la migration du 27/09.
+  IDF_IMAGE: espressif/idf:v6.1
