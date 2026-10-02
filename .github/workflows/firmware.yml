@@ -37,6 +37,16 @@ jobs:
     outputs:
       matrice: ${{ steps.lire.outputs.matrice }}
     steps:
+      # AVANT le checkout : sur un runner persistant le repertoire de travail
+      # survit d'un job a l'autre, et un build laisse en root par une version
+      # anterieure de ce workflow fait echouer `checkout` ("EACCES ... unlink").
+      # Ce filet s'execute en root pour oter ces restes. Les nouveaux builds
+      # n'en creent plus (voir l'option -u a l'etape de compilation).
+      - name: Oter les restes root d'une execution anterieure
+        run: |
+          [ -d firmware/build-ci ] || exit 0
+          docker run --rm -v "$PWD":/w alpine:3 sh -c 'rm -rf /w/firmware/build-ci'
+
       - uses: actions/checkout@v6
       - id: lire
         name: Lire les cartes declarees dans boards/
@@ -64,11 +74,11 @@ jobs:
       matrix:
         carte: ${{ fromJSON(needs.cartes.outputs.matrice) }}
     steps:
-      # AVANT le checkout : sur un runner persistant, le repertoire de travail
-      # survit d'un job a l'autre. Un build laisse par une version anterieure de
-      # ce workflow appartenait a root, et `checkout` echouait a le nettoyer
-      # ("failed to remove ... Permission denied"). Ce filet s'execute en root
-      # pour rattraper ces restes ; les nouveaux builds, eux, n'en creent plus.
+      # AVANT le checkout : sur un runner persistant le repertoire de travail
+      # survit d'un job a l'autre, et un build laisse en root par une version
+      # anterieure de ce workflow fait echouer `checkout` ("EACCES ... unlink").
+      # Ce filet s'execute en root pour oter ces restes. Les nouveaux builds
+      # n'en creent plus (voir l'option -u a l'etape de compilation).
       - name: Oter les restes root d'une execution anterieure
         run: |
           [ -d firmware/build-ci ] || exit 0
