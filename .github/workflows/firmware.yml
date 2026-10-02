@@ -1,8 +1,11 @@
 # Compile le firmware pour chaque carte declaree, sur le runner de l'organisation.
 #
-# Pourquoi nos runners et pas ceux de GitHub : la chaine ESP-IDF tient dans une
-# image docker de 8,5 Go. La telecharger a chaque execution sur une machine
-# jetable coute plus cher que de la garder sur notre runner, ou elle est deja la.
+# Pourquoi les runners de GitHub et pas le notre : ce depot est PUBLIC, donc
+# n'importe qui peut ouvrir une PR. Sur notre runner d'organisation, ce code
+# s'executerait a cote de nos depots prives, avec le socket docker et un reseau
+# qui joint Proxmox et le VLAN des automates. Mesure le 2026-10-02. Les runners
+# de GitHub sont gratuits et illimites sur un depot public, et jetables : le
+# prix a payer est de tirer l'image ESP-IDF a chaque execution.
 #
 # Les cartes ne sont pas listees ici : elles viennent de boards/*.json, seul
 # endroit ou une carte se declare. Ajouter une carte, c'est ajouter un fichier.
@@ -32,23 +35,11 @@ defaults:
 
 jobs:
   cartes:
-    runs-on: [self-hosted, isno, docker]
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       matrice: ${{ steps.lire.outputs.matrice }}
     steps:
-      # AVANT le checkout : sur un runner persistant, le repertoire de travail
-      # survit d'un job a l'autre. Une version anterieure de ce workflow lancait
-      # le conteneur en root, et `checkout` ne peut pas effacer ce qu'elle a
-      # laisse : "EACCES ... unlink" sur firmware/build-ci, puis sur
-      # firmware/managed_components. Enumerer les chemins ne tient pas, ils
-      # changent ; on reprend la main sur tout le repertoire. Les nouveaux
-      # builds n'en creent plus (voir l'option -u a l'etape de compilation),
-      # donc ce filet ne sert qu'une fois.
-      - name: Reprendre la main sur ce qu'une execution anterieure a laisse en root
-        run: |
-          docker run --rm -v "$PWD":/w alpine:3 chown -R "$(id -u):$(id -g)" /w
-
       - uses: actions/checkout@v7
       - id: lire
         name: Lire les cartes declarees dans boards/
@@ -69,25 +60,13 @@ jobs:
 
   build:
     needs: cartes
-    runs-on: [self-hosted, isno, docker]
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         carte: ${{ fromJSON(needs.cartes.outputs.matrice) }}
     steps:
-      # AVANT le checkout : sur un runner persistant, le repertoire de travail
-      # survit d'un job a l'autre. Une version anterieure de ce workflow lancait
-      # le conteneur en root, et `checkout` ne peut pas effacer ce qu'elle a
-      # laisse : "EACCES ... unlink" sur firmware/build-ci, puis sur
-      # firmware/managed_components. Enumerer les chemins ne tient pas, ils
-      # changent ; on reprend la main sur tout le repertoire. Les nouveaux
-      # builds n'en creent plus (voir l'option -u a l'etape de compilation),
-      # donc ce filet ne sert qu'une fois.
-      - name: Reprendre la main sur ce qu'une execution anterieure a laisse en root
-        run: |
-          docker run --rm -v "$PWD":/w alpine:3 chown -R "$(id -u):$(id -g)" /w
-
       - uses: actions/checkout@v7
 
       - name: Compiler ${{ matrix.carte.board }} (${{ matrix.carte.target }})
