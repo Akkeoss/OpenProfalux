@@ -37,15 +37,17 @@ jobs:
     outputs:
       matrice: ${{ steps.lire.outputs.matrice }}
     steps:
-      # AVANT le checkout : sur un runner persistant le repertoire de travail
-      # survit d'un job a l'autre, et un build laisse en root par une version
-      # anterieure de ce workflow fait echouer `checkout` ("EACCES ... unlink").
-      # Ce filet s'execute en root pour oter ces restes. Les nouveaux builds
-      # n'en creent plus (voir l'option -u a l'etape de compilation).
-      - name: Oter les restes root d'une execution anterieure
+      # AVANT le checkout : sur un runner persistant, le repertoire de travail
+      # survit d'un job a l'autre. Une version anterieure de ce workflow lancait
+      # le conteneur en root, et `checkout` ne peut pas effacer ce qu'elle a
+      # laisse : "EACCES ... unlink" sur firmware/build-ci, puis sur
+      # firmware/managed_components. Enumerer les chemins ne tient pas, ils
+      # changent ; on reprend la main sur tout le repertoire. Les nouveaux
+      # builds n'en creent plus (voir l'option -u a l'etape de compilation),
+      # donc ce filet ne sert qu'une fois.
+      - name: Reprendre la main sur ce qu'une execution anterieure a laisse en root
         run: |
-          [ -d firmware/build-ci ] || exit 0
-          docker run --rm -v "$PWD":/w alpine:3 sh -c 'rm -rf /w/firmware/build-ci'
+          docker run --rm -v "$PWD":/w alpine:3 chown -R "$(id -u):$(id -g)" /w
 
       - uses: actions/checkout@v6
       - id: lire
@@ -74,15 +76,17 @@ jobs:
       matrix:
         carte: ${{ fromJSON(needs.cartes.outputs.matrice) }}
     steps:
-      # AVANT le checkout : sur un runner persistant le repertoire de travail
-      # survit d'un job a l'autre, et un build laisse en root par une version
-      # anterieure de ce workflow fait echouer `checkout` ("EACCES ... unlink").
-      # Ce filet s'execute en root pour oter ces restes. Les nouveaux builds
-      # n'en creent plus (voir l'option -u a l'etape de compilation).
-      - name: Oter les restes root d'une execution anterieure
+      # AVANT le checkout : sur un runner persistant, le repertoire de travail
+      # survit d'un job a l'autre. Une version anterieure de ce workflow lancait
+      # le conteneur en root, et `checkout` ne peut pas effacer ce qu'elle a
+      # laisse : "EACCES ... unlink" sur firmware/build-ci, puis sur
+      # firmware/managed_components. Enumerer les chemins ne tient pas, ils
+      # changent ; on reprend la main sur tout le repertoire. Les nouveaux
+      # builds n'en creent plus (voir l'option -u a l'etape de compilation),
+      # donc ce filet ne sert qu'une fois.
+      - name: Reprendre la main sur ce qu'une execution anterieure a laisse en root
         run: |
-          [ -d firmware/build-ci ] || exit 0
-          docker run --rm -v "$PWD":/w alpine:3 sh -c 'rm -rf /w/firmware/build-ci'
+          docker run --rm -v "$PWD":/w alpine:3 chown -R "$(id -u):$(id -g)" /w
 
       - uses: actions/checkout@v6
 
