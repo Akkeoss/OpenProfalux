@@ -49,7 +49,7 @@ jobs:
         run: |
           docker run --rm -v "$PWD":/w alpine:3 chown -R "$(id -u):$(id -g)" /w
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - id: lire
         name: Lire les cartes declarees dans boards/
         run: |
@@ -88,7 +88,7 @@ jobs:
         run: |
           docker run --rm -v "$PWD":/w alpine:3 chown -R "$(id -u):$(id -g)" /w
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Compiler ${{ matrix.carte.board }} (${{ matrix.carte.target }})
         run: |
@@ -114,7 +114,7 @@ jobs:
           bin=$(ls firmware/build-ci/*.bin | grep -vE 'bootloader|partition' | head -1)
           echo "::notice title=${{ matrix.carte.board }}::$(basename "$bin") = $(stat -c%s "$bin") octets"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: firmware-${{ matrix.carte.board }}
           path: |
