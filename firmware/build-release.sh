@@ -18,7 +18,21 @@
 #    0x1000 sur ESP32 classique, et la taille de flash suit la carte.
 set -euo pipefail
 cd "$(dirname "$0")"
-command -v idf.py >/dev/null || { echo "idf.py absent : active l'environnement ESP-IDF v6.1"; exit 1; }
+# Deux facons d'executer, pour la meme sortie : un environnement ESP-IDF v6.1 actif
+# (idf.py sur le PATH), ou a defaut le conteneur officiel, qui garantit la meme version
+# que la CI. Le repli docker est automatique ; ISNO_NO_DOCKER=1 l'interdit si on veut
+# echouer plutot que basculer.
+if ! command -v idf.py >/dev/null; then
+  [ "${ISNO_NO_DOCKER:-0}" = "1" ] && { echo "idf.py absent et docker interdit"; exit 1; }
+  command -v docker >/dev/null || { echo "ni idf.py ni docker : active l'environnement ESP-IDF v6.1"; exit 1; }
+  echo ">> idf.py absent, on passe par ${IDF_IMAGE:-espressif/idf:v6.1}"
+  # -u : rien n'est ecrit en root dans l'arborescence (sinon le checkout suivant echoue
+  # en EACCES, vu sur l'executeur). HOME=/tmp car l'utilisateur n'a pas de foyer dans
+  # l'image. Le depot entier est monte : les cartes vivent a la racine.
+  exec docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
+    -v "$(cd .. && pwd)":/project -w /project/firmware \
+    "${IDF_IMAGE:-espressif/idf:v6.1}" bash build-release.sh "$@"
+fi
 REL="$(pwd)/release"; mkdir -p "$REL"
 
 # Version : PROJECT_VER dans CMakeLists.txt, seule declaration. Une version deja
