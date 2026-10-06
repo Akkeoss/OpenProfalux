@@ -11,7 +11,7 @@
   "spi_freq_hz": 6000000,
   "radios": [
     { "chip": "CC1101", "band": "868", "module": "E07-900M10S",
-      "pins": { "sck": 18, "miso": 19, "mosi": 23, "cs": 5, "gdo0": 4, "gdo2": 2 } }
+      "pins": { "sck": 18, "miso": 19, "mosi": 23, "cs": 5, "gdo0": 4, "gdo2": -1 } }
   ],
   "ui": { "button": -1, "led": 2, "led_active_high": true },
   "region": "eu",
