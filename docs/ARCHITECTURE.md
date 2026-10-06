@@ -1,7 +1,7 @@
 # OpenProfalux — Architecture & conception
 
 > Document de référence. Modèle **clone/replay** validé au banc (2026-08-14).
-> Il **remplace** les hypothèses antérieures (récupération de clé, enrôlement PFX 0x067) :
+> Il **remplace** les hypothèses antérieures (récupération de clé, enrôlement) :
 > voir §9 pour pourquoi elles sont abandonnées.
 
 ## 1. Objectif
@@ -37,7 +37,7 @@ identique, sinon un maintien ne fonctionnerait pas. Le rejeu exploite exactement
 - **Codeword HCS300, 66 bits**, ordre d'émission LSB-first par champ :
   `[hopping 32b] [serial 28b] [button 4b] [VLOW] [RPT]`
 - **Chiffre** : KeeLoq **Microchip standard** (NLF `0x3A5C742E`, 528 tours). Confirmé 2000/2000 :
-  notre `kloop` = decrypt standard, `kloop_encrypt` = encrypt standard (finding cherubini, cf RESEARCH).
+  notre `kloop` = decrypt standard, `kloop_encrypt` = encrypt standard.
 - **Plaintext chiffré (32b)** : `button(4) | OVR(2) | disc(10) | counter(16)`, avec
   `disc = serial & 0x3ff`. Pour nos moteurs : **serial `0x0000813` → disc `0x013`**.
 - **Le bouton est doublé** : en clair (champ 4b) **et** chiffré dans le hopping. Un hopping est donc
@@ -71,7 +71,7 @@ Deux flux **distincts** :
 ## 5. Suivi de position (sans capteur)
 
 Le moteur ne renvoie **aucune** position (télécommande HCS300 = TX-only). La position est donc
-**toujours estimée**, jamais mesurée — exactement comme la box GW le fait en interne.
+**toujours estimée**, jamais mesurée, exactement comme la box GW le fait en interne.
 
 - **Time-based** : mesurer une fois le temps de course complète (haut→bas). Intégrer le temps de
   marche depuis une référence.
@@ -130,16 +130,14 @@ Une journée entière de crypto a mené à la conclusion que **rien de tout ça 
 - **Récupérer la clé device 0x813** : impossible en software. Mesuré : mur SAT ~96 tours (Cadical),
   portée différentielle ~120 tours, il faut **~48 bits de clé fixés** pour résoudre les 528 tours
   (aucun disponible). Seules voies réelles : **slide** (2¹⁶ captures + GPU ~3h) ou **DPA** (physique).
-- **Enrôler une nouvelle télécommande / famille `0x067`** : **mauvaise piste, mauvaise famille.**
-  Notre Profalux = `0x013`. `0x067` = une autre marque **ou** la famille des télécommandes
-  virtuelles que GW crée lui-même. Aucune clé `0x067` (15 @[omis], 63 @[omis]) ni la table
-  Cherubini (`0x1000xx`) ne déchiffre nos trames `0x013` : **mauvaise famille, pas juste mauvaise clé.**
-- **La procédure GW réelle** (UI) = « appuyez sur votre télécommande d'origine » = GW
-  **clone** l'originale (capture + rejeu). **Même mécanisme qu'OpenProfalux.** Il n'enrôle pas.
+- **Enrôler une nouvelle télécommande** : **mauvaise piste.** Nos trames relèvent d'une famille
+  KeeLoq (`0x013`) que les clés explorées côté crypto ne déchiffrent pas : **mauvaise famille, pas
+  juste mauvaise clé.** L'enrôlement n'apporte rien pour l'objectif.
+- **La procédure de la passerelle** (UI) = « appuyez sur votre télécommande d'origine » = elle
+  **clone** l'originale (capture + rejeu). **Même mécanisme qu'OpenProfalux.** Elle n'enrôle pas.
 
 **Outils crypto conservés en réserve** (au cas où un jour un moteur *strict* apparaîtrait) :
-`profalux/reverse/slide_mitm.py` (slide-MITM 512/528 validé), `cpa_keeloq.py` (DPA/CPA validé).
-Voir `RESEARCH.md` / mémoire `profalux-keeloq-known-plaintext-mitm`.
+slide-MITM et DPA/CPA, validés hors ligne, gardés en recherche interne.
 
 ## 10. Dataset slide passif (optionnel, gratuit)
 
@@ -156,7 +154,7 @@ Multi-utile (audit, détection nouveau serial). Caveat honnête : remplissage pa
 - **dewenni/ESP32-Jarolift-Controller** : archi RF KeeLoq + position + HA (autre marque) → pattern
   cover à reprendre.
 - **HarmEllis/esphome-cc1101**, **juanboro/esphome-radiolib-cc1101** : driver CC1101 → réutiliser.
-- **gw/integration-passerelle** : intégration HA « thin » (envoie % à la box, lit position) → confirme
+- **intégration HA « thin » de la passerelle** : envoie % à la box, lit position → confirme
   que l'intelligence position vit dans l'appareil (chez nous : l'ESP32).
 
 ## 12. Matériel

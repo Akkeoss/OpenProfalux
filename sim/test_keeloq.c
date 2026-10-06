@@ -72,13 +72,13 @@ int main(void) {
     uint32_t dec = keeloq_decrypt(enc, key1);
     check_u32("decrypt(encrypt(0xDEADBEEF))", dec, original);
 
-    /* Test 5: ancrage GW - le decrypt doit etre byte-identique au binaire
-     * service proprietaire (528-loop @[omis] force en gdb, session reverse). */
-    printf("\n[Ancrage GW]\n");
+    /* Test 5: ancrage de reference. Le decrypt KeeLoq standard doit etre
+     * byte-identique au vecteur de reference (528 tours). */
+    printf("\n[Ancrage reference]\n");
     uint32_t dvm = keeloq_decrypt(0x12345678u, 0xabcdef0123456789ULL);
-    check_u32("decrypt(0x12345678, 0xabcdef..) == GW", dvm, 0x7CC862BEu);
+    check_u32("decrypt(0x12345678, 0xabcdef..)", dvm, 0x7CC862BEu);
 
-    /* Test 6: sélection PFX par slot GW (table [omis]),
+    /* Test 6: selection de la cle PFX par slot encode dans le serial,
      * plus oracle PAIRMODE slot 54. */
     printf("\n[Selection cle PFX + roundtrip 63 cles]\n");
     uint64_t k0 = 0; uint8_t i0 = 0xFF;

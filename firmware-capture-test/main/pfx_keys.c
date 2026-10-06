@@ -11,7 +11,7 @@
  * Obfuscation reversible (comme GW) : ne protege pas contre l'extraction
  * par un attaquant qui execute/emule le firmware, mais evite de livrer des cles
  * en clair / greppables. Les cles Profalux sont de toute facon deja extractibles
- * du binaire public GW service proprietaire.
+ * du binaire public service proprietaire.
  */
 #define PFX_OBF_SALT   0xA5C3F00D5EED1234ULL
 #define PFX_OBF_GOLDEN 0x9E3779B97F4A7C15ULL

@@ -1,7 +1,7 @@
 /*
- * Profalux PFX manufacturer keys - selection par serial (reverse GW 2026-08-07)
+ * Profalux PFX manufacturer keys : selection par serial.
  *
- * Origine : table @VA [omis] du binaire GW service proprietaire (chemin PFX @[omis]).
+ * Origine : table de cles constructeur, selection par slot encode dans le serial.
  * La cle KEELOQ (crypt_key) n'est PAS aleatoire ni derivee par-serial : elle est
  * SELECTIONNEE dans une table de 63 cles par un slot encode dans le serial :
  *     (serial & 0x3FF) == 0x067      // marqueur famille PFX/Profalux

@@ -1,5 +1,5 @@
 /*
- * console.c — Banc de test enrolement GW R6 (pilotage serie).
+ * console.c : Banc de test enrolement GW R6 (pilotage serie).
  *
  * Reproduit la procedure la passerelle proprietaire R6 : OpenProfalux REJOUE toute la sequence de
  * mouvements (trames captees de la vraie telecommande) et S'INSERE AU MILIEU en emettant
